@@ -131,7 +131,10 @@ async function runMigration() {
         });
 
         const client = await pool.connect();
-        console.log('Connected to Database. Inserting records...');
+        console.log('Connected to DB. Clearing existing data...');
+        await client.query('TRUNCATE TABLE candidates RESTART IDENTITY');
+
+        console.log('Inserting records...');
 
         let count = 0;
         for (const c of rawCandidates) {
@@ -155,6 +158,13 @@ async function runMigration() {
             const owner = c['Created By'] || '';
             const createdBy = c['Created By'] || '';
             const modifiedBy = c['Modified By'] || '';
+            
+            // New fields
+            const linkedin = c['LinkedIn'] || '';
+            const twitter = c['Twitter'] || '';
+            const skypeId = c['Skype ID'] || '';
+            const secondaryEmail = c['Secondary Email'] || '';
+            const additionalInfo = c['Additional Info'] || '';
 
             const education = eduMap[cId] || [];
             const experienceList = expMap[cId] || [];
@@ -166,8 +176,9 @@ async function runMigration() {
                 INSERT INTO candidates 
                 ("firstName", "lastName", email, mobile, phone, address1, "pinCode", city, state, country, 
                  experience, "jobTitle", employer, status, source, owner, "createdBy", "modifiedBy",
-                 skills, education, "experienceList", attachments, notes, "createdAt", "modifiedTime") 
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25)
+                 skills, education, "experienceList", attachments, notes, "createdAt", "modifiedTime",
+                 linkedin, twitter, "skypeId", "secondaryEmail", "additionalInfo") 
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30)
             `;
             
             const params = [
@@ -175,7 +186,8 @@ async function runMigration() {
                 experience, jobTitle, employer, status, source, owner, createdBy, modifiedBy,
                 JSON.stringify(skills), JSON.stringify(education), 
                 JSON.stringify(experienceList), JSON.stringify(attachments), JSON.stringify(notes),
-                new Date(c['Created Time'] || Date.now()), new Date(c['Modified Time'] || Date.now())
+                new Date(c['Created Time'] || Date.now()), new Date(c['Modified Time'] || Date.now()),
+                linkedin, twitter, skypeId, secondaryEmail, additionalInfo
             ];
 
             await client.query(insertQuery, params);

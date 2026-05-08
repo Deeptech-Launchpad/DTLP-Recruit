@@ -743,34 +743,6 @@
                                 <h2 id="detail-top-name"
                                     style="margin:0; font-size: 1.25rem; font-weight: 400; font-family: 'Inter', sans-serif; color:#111827;">
                                     Candidate Name</h2>
-                                <div style="display:flex; gap: 5px; color:#9ca3af; font-size: 0.75rem;">
-                                    <div class="social-dropdown-wrapper">
-                                        <span
-                                            style="border: 1px solid #e5e7eb; border-radius: 12px; padding: 1px 8px; cursor:pointer;">in
-                                            <i class="fas fa-chevron-down" style="font-size:0.6rem;"></i></span>
-                                        <div class="social-dropdown-menu">
-                                            <a href="#"><i class="fas fa-plus"
-                                                    style="margin-right:5px; font-size:0.7rem;"></i>Add</a>
-                                        </div>
-                                    </div>
-                                    <div class="social-dropdown-wrapper">
-                                        <span
-                                            style="border: 1px solid #e5e7eb; border-radius: 12px; padding: 1px 8px; cursor:pointer;">f
-                                            <i class="fas fa-chevron-down" style="font-size:0.6rem;"></i></span>
-                                        <div class="social-dropdown-menu">
-                                            <a href="#"><i class="fas fa-plus"
-                                                    style="margin-right:5px; font-size:0.7rem;"></i>Add</a>
-                                        </div>
-                                    </div>
-                                    <div class="social-dropdown-wrapper">
-                                        <span
-                                            style="border: 1px solid #e5e7eb; border-radius: 12px; padding: 1px 8px; cursor:pointer;">X
-                                            <i class="fas fa-chevron-down" style="font-size:0.6rem;"></i></span>
-                                        <div class="social-dropdown-menu">
-                                            <a href="#"><i class="fas fa-plus"
-                                                    style="margin-right:5px; font-size:0.7rem;"></i>Add </a>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                             <div style="margin-top: 5px;">
@@ -785,28 +757,10 @@
                         <button id="btn-edit-candidate-detail"
                             style="width:34px; height:34px; border-radius:50%; border:1px solid #d1d5db; background:transparent; color:#6b7280; display:flex; justify-content:center; align-items:center; cursor:pointer; font-size:0.9rem; transition: background 0.2s;"><i
                                 class="fas fa-edit"></i></button>
-                        <button
-                            style="width:34px; height:34px; border-radius:50%; border:1px solid #d1d5db; background:transparent; color:#6b7280; display:flex; justify-content:center; align-items:center; cursor:pointer; font-size:0.9rem; transition: background 0.2s;"><i
-                                class="fas fa-paper-plane"></i></button>
-                        <button
-                            style="width:34px; height:34px; border-radius:50%; border:1px solid #d1d5db; background:transparent; color:#6b7280; display:flex; justify-content:center; align-items:center; cursor:pointer; font-size:0.9rem; transition: background 0.2s;"><i
-                                class="fas fa-briefcase"></i></button>
-                        <button
-                            style="width:34px; height:34px; border-radius:50%; border:1px solid #d1d5db; background:transparent; color:#6b7280; display:flex; justify-content:center; align-items:center; cursor:pointer; font-size:0.9rem; transition: background 0.2s;"><i
-                                class="fas fa-user-check"></i></button>
-                        <button
-                            style="width:34px; height:34px; border-radius:50%; border:1px solid #d1d5db; background:transparent; color:#6b7280; display:flex; justify-content:center; align-items:center; cursor:pointer; font-size:0.9rem; transition: background 0.2s;"><i
-                                class="fas fa-calendar-alt"></i></button>
-                        <button
-                            style="width:34px; height:34px; border-radius:50%; border:1px solid #d1d5db; background:transparent; color:#6b7280; display:flex; justify-content:center; align-items:center; cursor:pointer; font-size:0.9rem; transition: background 0.2s;"><i
-                                class="fas fa-ellipsis-h"></i></button>
-
-                        <div style="width:1px; height:20px; background:#e5e7eb; margin: 0 5px;"></div>
-
-                        <button
+                        <button id="btn-prev-candidate"
                             style="border:none; background:transparent; color: #9ca3af; cursor:pointer; font-size:0.9rem; padding: 5px;"><i
                                 class="fas fa-chevron-left"></i></button>
-                        <button
+                        <button id="btn-next-candidate"
                             style="border:none; background:transparent; color: #6b7280; cursor:pointer; font-size:0.9rem; padding: 5px;"><i
                                 class="fas fa-chevron-right"></i></button>
                     </div>
@@ -878,9 +832,7 @@
                             <div
                                 style="display:flex; border: 1px solid #bfdbfe; border-radius: 20px; overflow: hidden;">
                                 <button
-                                    style="padding: 6px 18px; border:none; background: #eff6ff; color: #1e40af; font-weight: 500; font-size: 0.85rem; border-right: 1px solid #bfdbfe; cursor: pointer;">Overview</button>
-                                <button
-                                    style="padding: 6px 18px; border:none; background: #fff; color: #4b5563; font-weight: 500; font-size: 0.85rem; cursor: pointer;">Timeline</button>
+                                    style="padding: 6px 18px; border:none; background: #eff6ff; color: #1e40af; font-weight: 500; font-size: 0.85rem; cursor: pointer;">Overview</button>
                             </div>
                             <div style="display:flex; align-items:center; gap: 20px; font-size: 0.8rem; color:#6b7280;">
                                 <span id="detail-last-update">Last Update : 36 days ago</span>
@@ -1209,7 +1161,7 @@
                                         <div class="section-grid">
                                             <div class="editable-row">
                                                 <div class="row-label">LinkedIn</div>
-                                                <div class="row-value text-muted-value"><input type="text"
+                                                <div class="row-value text-muted-value" id="detail-linkedin-2"><input type="text"
                                                         class="inline-edit-input" placeholder="-" style="width: 250px;">
                                                 </div>
                                             </div>

@@ -137,6 +137,8 @@ const elements = {
     experienceBlocks: document.getElementById('experience-blocks'),
     candidateFormTitle: document.getElementById('candidate-form-title'),
     btnEditCandidateDetail: document.getElementById('btn-edit-candidate-detail'),
+    btnPrevCandidate: document.getElementById('btn-prev-candidate'),
+    btnNextCandidate: document.getElementById('btn-next-candidate'),
 };
 
 let currentSkills = [];
@@ -553,6 +555,15 @@ function showCandidateDetail(id) {
     safeUpdate('detail-skillSet-2', (candidate.skills && candidate.skills.length > 0) ? candidate.skills.join(', ') : '-');
     safeUpdate('detail-additionalInfo-2', candidate.additionalInfo || '-');
     safeUpdate('detail-skypeId-2', candidate.skypeId || '-');
+    const linkedinVal = candidate.linkedin || '-';
+    const linkedinEl = document.getElementById('detail-linkedin-2');
+    if (linkedinEl) {
+        if (linkedinVal !== '-' && (linkedinVal.startsWith('http') || linkedinVal.includes('linkedin.com'))) {
+            linkedinEl.innerHTML = `<a href="${linkedinVal}" target="_blank" style="color: #0ea5e9; text-decoration: none;">${linkedinVal} <i class="fas fa-external-link-alt" style="font-size: 0.8em; margin-left: 5px;"></i></a>`;
+        } else {
+            linkedinEl.textContent = linkedinVal;
+        }
+    }
 
     // Address Information fields
     safeUpdate('detail-street-2', candidate.address1 || '-');
@@ -831,6 +842,28 @@ function showCandidateDetail(id) {
     elements.candidatesListView.classList.add('hidden');
     elements.candidatesCreateView.classList.add('hidden');
     elements.candidatesDetailView.classList.remove('hidden');
+
+    // Update navigation arrows state
+    const currentIndex = state.candidates.findIndex(c => c.id === id);
+    if (elements.btnPrevCandidate) {
+        elements.btnPrevCandidate.style.opacity = currentIndex <= 0 ? '0.3' : '1';
+        elements.btnPrevCandidate.style.cursor = currentIndex <= 0 ? 'default' : 'pointer';
+    }
+    if (elements.btnNextCandidate) {
+        elements.btnNextCandidate.style.opacity = currentIndex >= state.candidates.length - 1 ? '0.3' : '1';
+        elements.btnNextCandidate.style.cursor = currentIndex >= state.candidates.length - 1 ? 'default' : 'pointer';
+    }
+}
+
+function navigateCandidate(dir) {
+    if (!state.currentCandidateId) return;
+    const currentIndex = state.candidates.findIndex(c => c.id === state.currentCandidateId);
+    if (currentIndex === -1) return;
+
+    const newIndex = currentIndex + dir;
+    if (newIndex >= 0 && newIndex < state.candidates.length) {
+        showCandidateDetail(state.candidates[newIndex].id);
+    }
 }
 
 // --- Rendering Tables and Dynamic Elements --- //
@@ -1396,6 +1429,13 @@ function setupEventListeners() {
                 alert("Failed to export data. See console for details.");
             }
         });
+    }
+
+    if (elements.btnPrevCandidate) {
+        elements.btnPrevCandidate.addEventListener('click', () => navigateCandidate(-1));
+    }
+    if (elements.btnNextCandidate) {
+        elements.btnNextCandidate.addEventListener('click', () => navigateCandidate(1));
     }
 
     const sortBtn = document.getElementById('btn-sort-candidates');
