@@ -1759,6 +1759,8 @@ async function saveCandidate() {
         emailOptOut: formData.get('emailOptOut') === 'on',
         education: education,
         experienceList: experienceList,
+        modifiedBy: state.user.name,
+        createdBy: state.isEditMode ? undefined : state.user.name,
         notes: state.isEditMode ? (state.candidates.find(c => c.id === state.currentCandidateId)?.notes || []) : [],
         attachments: (() => {
             const existing = state.isEditMode ? (state.candidates.find(c => c.id === state.currentCandidateId)?.attachments || []) : [];

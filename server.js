@@ -175,7 +175,8 @@ app.post('/api/candidates', async (req, res) => {
         experience, qualification, jobTitle, employer, expectedSalary, currentSalary,
         skills, additionalInfo, skypeId, linkedin, twitter,
         status, source, owner, emailOptOut,
-        education, experienceList, attachments, notes
+        education, experienceList, attachments, notes,
+        createdBy, modifiedBy
     } = req.body;
 
     const insertQuery = `
@@ -185,8 +186,8 @@ app.post('/api/candidates', async (req, res) => {
          experience, qualification, "jobTitle", employer, "expectedSalary", "currentSalary", 
          skills, "additionalInfo", "skypeId", linkedin, twitter, 
          status, source, owner, "emailOptOut", 
-         education, "experienceList", attachments, notes, "modifiedTime") 
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32) RETURNING *;
+         education, "experienceList", attachments, notes, "modifiedTime", "createdBy", "modifiedBy") 
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34) RETURNING *;
     `;
     const expValue = (experience === '' || experience === null || experience === undefined) ? null : parseInt(experience, 10);
     const params = [
@@ -196,7 +197,9 @@ app.post('/api/candidates', async (req, res) => {
         JSON.stringify(skills), additionalInfo, skypeId, linkedin, twitter,
         status, source, owner, emailOptOut,
         JSON.stringify(education), JSON.stringify(experienceList), JSON.stringify(attachments), JSON.stringify(notes),
-        req.body.modifiedTime ? new Date(req.body.modifiedTime) : new Date()
+        req.body.modifiedTime ? new Date(req.body.modifiedTime) : new Date(),
+        createdBy || 'system',
+        modifiedBy || 'system'
     ];
 
     try {
@@ -219,7 +222,7 @@ app.put('/api/candidates/:id', async (req, res) => {
         experience, qualification, jobTitle, employer, expectedSalary, currentSalary,
         skills, additionalInfo, skypeId, linkedin, twitter,
         status, source, owner, emailOptOut,
-        education, experienceList, attachments, notes
+        education, experienceList, attachments, notes, modifiedBy
     } = req.body;
 
     const updateQuery = `
@@ -240,7 +243,7 @@ app.put('/api/candidates/:id', async (req, res) => {
         JSON.stringify(skills), additionalInfo, skypeId, linkedin, twitter,
         status, source, owner, emailOptOut,
         JSON.stringify(education), JSON.stringify(experienceList), JSON.stringify(attachments), JSON.stringify(notes),
-        new Date(), req.user ? req.user.username : 'system',
+        new Date(), modifiedBy || 'system',
         id
     ];
 
