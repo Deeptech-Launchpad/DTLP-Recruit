@@ -31,7 +31,7 @@ const pool = new Pool({
     host: 'localhost',
     database: 'recruit_db',
     password: 'admin123', // TODO: User needs to change this line!
-    port: 9001,
+    port: 5432,
 });
 
 // Connect and create table if it doesn't exist
