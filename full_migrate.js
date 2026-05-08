@@ -36,6 +36,15 @@ async function readCSV(filePath) {
     });
 }
 
+function parseDuration(dateStr) {
+    if (!dateStr || typeof dateStr !== 'string') return { month: 'Month', year: 'Year' };
+    const parts = dateStr.split('-');
+    if (parts.length === 2) {
+        return { month: parts[0], year: parts[1] };
+    }
+    return { month: 'Month', year: 'Year' };
+}
+
 async function runMigration() {
     try {
         console.log('--- STARTING FULL MIGRATION ---');
@@ -56,12 +65,19 @@ async function runMigration() {
         rawEdu.forEach(e => {
             const id = e['Candidate Id'];
             if (!eduMap[id]) eduMap[id] = [];
+            const from = parseDuration(e['Duration_From']);
+            const to = parseDuration(e['Duration_To']);
             eduMap[id].push({
-                school: e['Institute / School'],
+                institute: e['Institute / School'],
                 major: e['Major / Department'],
                 degree: e['Degree'],
                 durationFrom: e['Duration_From'],
-                durationTo: e['Duration_To']
+                durationTo: e['Duration_To'],
+                fromMonth: from.month,
+                fromYear: from.year,
+                toMonth: to.month,
+                toYear: to.year,
+                currentlyPursuing: e['Currently pursuing'] === 'true'
             });
         });
 
@@ -69,12 +85,19 @@ async function runMigration() {
         rawExp.forEach(e => {
             const id = e['Candidate Id'];
             if (!expMap[id]) expMap[id] = [];
+            const from = parseDuration(e['Work Duration_From']);
+            const to = parseDuration(e['Work Duration_To']);
             expMap[id].push({
-                title: e['Occupation / Title'],
+                occupation: e['Occupation / Title'],
                 company: e['Company'],
                 summary: e['Summary'],
                 durationFrom: e['Work Duration_From'],
-                durationTo: e['Work Duration_To']
+                durationTo: e['Work Duration_To'],
+                fromMonth: from.month,
+                fromYear: from.year,
+                toMonth: to.month,
+                toYear: to.year,
+                currentlyWorking: e['Currently working'] === 'true'
             });
         });
 
@@ -97,10 +120,12 @@ async function runMigration() {
             if (!attachMap[id]) attachMap[id] = [];
             attachMap[id].push({
                 filename: a['File Name'],
-                category: a['Attachment Category'] || 'Resume',
+                category: a['Category'] || 'Resume',
                 dateCreated: a['Created Time'],
+                dateModified: a['Modified Time'],
                 size: a['Size'],
                 attachedBy: a['Created By'],
+                modifiedBy: a['Modified By'],
                 content: `/api/attachments/file/${a['File Name']}`
             });
         });
