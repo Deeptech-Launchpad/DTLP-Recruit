@@ -12,7 +12,7 @@ const upload = multer({ storage: storage, limits: { fileSize: 10 * 1024 * 1024 }
 const JWT_SECRET = 'super_secret_admin_key_123'; // In production, use env variable
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 9002;
 
 // Middleware
 app.use(cors());
@@ -31,7 +31,7 @@ const pool = new Pool({
     host: 'localhost',
     database: 'recruit_db',
     password: 'admin123', // TODO: User needs to change this line!
-    port: 5432,
+    port: 9001,
 });
 
 // Connect and create table if it doesn't exist
