@@ -60,8 +60,8 @@ async function runMigration() {
                 school: e['Institute / School'],
                 major: e['Major / Department'],
                 degree: e['Degree'],
-                from: e['Duration_From'],
-                to: e['Duration_To']
+                durationFrom: e['Duration_From'],
+                durationTo: e['Duration_To']
             });
         });
 
@@ -73,21 +73,21 @@ async function runMigration() {
                 title: e['Occupation / Title'],
                 company: e['Company'],
                 summary: e['Summary'],
-                from: e['Work Duration_From'],
-                to: e['Work Duration_To']
+                durationFrom: e['Work Duration_From'],
+                durationTo: e['Work Duration_To']
             });
         });
 
         const notesMap = {};
         rawNotes.forEach(n => {
-            const id = n['Parent Id']; // Notes usually use Parent Id
+            const id = n['Parent Id'];
             if (!notesMap[id]) notesMap[id] = [];
             notesMap[id].push({
                 id: Date.now() + Math.random(),
                 title: n['Note Title'] || 'Note',
-                body: n['Note Content'],
+                content: n['Note Content'],
                 author: n['Created By'],
-                date: n['Created Time']
+                createdAt: n['Created Time']
             });
         });
 
@@ -98,7 +98,7 @@ async function runMigration() {
             attachMap[id].push({
                 filename: a['File Name'],
                 category: a['Attachment Category'] || 'Resume',
-                date: a['Created Time'],
+                dateCreated: a['Created Time'],
                 size: a['Size'],
                 attachedBy: a['Created By'],
                 content: `/api/attachments/file/${a['File Name']}`
@@ -117,6 +117,8 @@ async function runMigration() {
             const email = c['Email'] || '';
             const mobile = c['Mobile'] || '';
             const phone = c['Phone'] || '';
+            const street = c['Street'] || '';
+            const pinCode = c['Postal Code'] || '';
             const city = c['City'] || '';
             const state = c['Province'] || '';
             const country = c['Country'] || '';
@@ -126,6 +128,8 @@ async function runMigration() {
             const status = c['Candidate Status'] || 'New';
             const source = c['Source'] || '';
             const owner = c['Created By'] || '';
+            const createdBy = c['Created By'] || '';
+            const modifiedBy = c['Modified By'] || '';
 
             const education = eduMap[cId] || [];
             const experienceList = expMap[cId] || [];
@@ -135,15 +139,15 @@ async function runMigration() {
 
             const insertQuery = `
                 INSERT INTO candidates 
-                ("firstName", "lastName", email, mobile, phone, city, state, country, 
-                 experience, "jobTitle", employer, status, source, owner,
+                ("firstName", "lastName", email, mobile, phone, address1, "pinCode", city, state, country, 
+                 experience, "jobTitle", employer, status, source, owner, "createdBy", "modifiedBy",
                  skills, education, "experienceList", attachments, notes, "createdAt", "modifiedTime") 
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25)
             `;
             
             const params = [
-                firstName, lastName, email, mobile, phone, city, state, country, 
-                experience, jobTitle, employer, status, source, owner,
+                firstName, lastName, email, mobile, phone, street, pinCode, city, state, country, 
+                experience, jobTitle, employer, status, source, owner, createdBy, modifiedBy,
                 JSON.stringify(skills), JSON.stringify(education), 
                 JSON.stringify(experienceList), JSON.stringify(attachments), JSON.stringify(notes),
                 new Date(c['Created Time'] || Date.now()), new Date(c['Modified Time'] || Date.now())
