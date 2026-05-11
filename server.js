@@ -5,11 +5,13 @@ const path = require('path');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
+require('dotenv').config();
+
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage, limits: { fileSize: 10 * 1024 * 1024 } }); // 10MB limit
 
-const JWT_SECRET = 'super_secret_admin_key_123'; // In production, use env variable
+const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_admin_key_123';
 
 const app = express();
 const PORT = process.env.PORT || 9002;
@@ -27,12 +29,13 @@ app.use(express.static(path.join(__dirname, 'frontend')));
 
 
 const pool = new Pool({
-    user: 'postgres',
-    host: 'localhost',
-    database: 'recruit_db',
-    password: 'admin123', // TODO: User needs to change this line!
-    port: 5432,
+    user: process.env.DB_USER || 'postgres',
+    host: process.env.DB_HOST || 'localhost',
+    database: process.env.DB_NAME || 'recruit_db',
+    password: process.env.DB_PASSWORD || 'admin123',
+    port: process.env.DB_PORT || 5432,
 });
+
 
 // Connect and create table if it doesn't exist
 pool.connect((err, client, release) => {
@@ -77,7 +80,9 @@ pool.connect((err, client, release) => {
             attachments JSONB,
             notes JSONB,
             "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            "modifiedTime" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            "modifiedTime" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            "createdBy" VARCHAR(255),
+            "modifiedBy" VARCHAR(255)
         );
     `;
 
@@ -149,6 +154,40 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
+// Helper to process and save attachments from JSON payload (DataURLs)
+async function processAttachments(attachments) {
+    if (!attachments || !Array.isArray(attachments)) return attachments;
+
+    for (const att of attachments) {
+        if (att.content && att.content.startsWith('data:')) {
+            try {
+                const parts = att.content.split(';base64,');
+                if (parts.length === 2) {
+                    const mimeType = parts[0].split(':')[1];
+                    const base64Data = parts[1];
+                    const fileData = Buffer.from(base64Data, 'base64');
+                    const filename = att.filename;
+
+                    // Save to attachment_files table
+                    const query = `
+                        INSERT INTO attachment_files (filename, file_data, mime_type) 
+                        VALUES ($1, $2, $3) 
+                        ON CONFLICT (filename) DO UPDATE SET file_data = $2, mime_type = $3;
+                    `;
+                    await pool.query(query, [filename, fileData, mimeType]);
+
+                    // Remove content from metadata to keep JSON slim in candidates table
+                    delete att.content;
+                }
+            } catch (err) {
+                console.error(`Error processing attachment ${att.filename}:`, err);
+            }
+        }
+    }
+    return attachments;
+}
+
+
 // API Routes
 app.get('/api/ping', (req, res) => res.json({ message: 'pong' }));
 
@@ -179,6 +218,9 @@ app.post('/api/candidates', async (req, res) => {
         createdBy, modifiedBy
     } = req.body;
 
+    // Process any new attachments (convert DataURLs to DB records)
+    const processedAttachments = await processAttachments(req.body.attachments || []);
+
     const insertQuery = `
         INSERT INTO candidates 
         ("firstName", "lastName", email, mobile, phone, "secondaryEmail", 
@@ -196,7 +238,7 @@ app.post('/api/candidates', async (req, res) => {
         expValue, qualification, jobTitle, employer, expectedSalary, currentSalary,
         JSON.stringify(skills), additionalInfo, skypeId, linkedin, twitter,
         status, source, owner, emailOptOut,
-        JSON.stringify(education), JSON.stringify(experienceList), JSON.stringify(attachments), JSON.stringify(notes),
+        JSON.stringify(education), JSON.stringify(experienceList), JSON.stringify(processedAttachments), JSON.stringify(notes),
         req.body.modifiedTime ? new Date(req.body.modifiedTime) : new Date(),
         createdBy || 'system',
         modifiedBy || 'system'
@@ -225,6 +267,9 @@ app.put('/api/candidates/:id', async (req, res) => {
         education, experienceList, attachments, notes, modifiedBy
     } = req.body;
 
+    // Process any new attachments (convert DataURLs to DB records)
+    const processedAttachments = await processAttachments(req.body.attachments || []);
+
     const updateQuery = `
         UPDATE candidates 
         SET "firstName" = $1, "lastName" = $2, email = $3, mobile = $4, phone = $5, "secondaryEmail" = $6, 
@@ -242,7 +287,7 @@ app.put('/api/candidates/:id', async (req, res) => {
         expValue, qualification, jobTitle, employer, expectedSalary, currentSalary,
         JSON.stringify(skills), additionalInfo, skypeId, linkedin, twitter,
         status, source, owner, emailOptOut,
-        JSON.stringify(education), JSON.stringify(experienceList), JSON.stringify(attachments), JSON.stringify(notes),
+        JSON.stringify(education), JSON.stringify(experienceList), JSON.stringify(processedAttachments), JSON.stringify(notes),
         new Date(), modifiedBy || 'system',
         id
     ];
@@ -389,6 +434,32 @@ app.put('/api/admin/:id/toggle-status', authenticateToken, async (req, res) => {
             [!currentStatus, id]
         );
         res.json({ message: "Status updated", data: result.rows[0] });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Reset Admin Password
+app.put('/api/admin/:id/reset-password', authenticateToken, async (req, res) => {
+    const { id } = req.params;
+    const { password } = req.body;
+
+    if (!password || password.length < 4) {
+        return res.status(400).json({ error: "Password must be at least 4 characters long" });
+    }
+
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const result = await pool.query(
+            'UPDATE admins SET hashed_password = $1 WHERE id = $2 RETURNING id, username, email',
+            [hashedPassword, id]
+        );
+        
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: "Admin not found" });
+        }
+        
+        res.json({ message: "Password updated successfully" });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

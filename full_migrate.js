@@ -2,14 +2,17 @@ const fs = require('fs');
 const path = require('path');
 const csv = require('csv-parser');
 const { Pool } = require('pg');
+require('dotenv').config();
+
 
 const pool = new Pool({
-    user: 'postgres',
-    host: 'localhost',
-    database: 'recruit_db',
-    password: 'admin123',
-    port: 5432,
+    user: process.env.DB_USER || 'postgres',
+    host: process.env.DB_HOST || 'localhost',
+    database: process.env.DB_NAME || 'recruit_db',
+    password: process.env.DB_PASSWORD || 'admin123',
+    port: process.env.DB_PORT || 5432,
 });
+
 
 const DATA_DIR = path.join(__dirname, 'canditate data');
 
@@ -48,7 +51,7 @@ function parseDuration(dateStr) {
 async function runMigration() {
     try {
         console.log('--- STARTING FULL MIGRATION ---');
-        
+
         console.log('Reading CSV files...');
         const [rawCandidates, rawEdu, rawExp, rawNotes, rawAttach] = await Promise.all([
             readCSV(FILES.candidates),
@@ -139,7 +142,7 @@ async function runMigration() {
         let count = 0;
         for (const c of rawCandidates) {
             const cId = c['Candidate Id'];
-            
+
             const firstName = c['First Name'] || '';
             const lastName = c['Last Name'] || '';
             const email = c['Email'] || '';
@@ -158,7 +161,7 @@ async function runMigration() {
             const owner = c['Created By'] || '';
             const createdBy = c['Created By'] || '';
             const modifiedBy = c['Modified By'] || '';
-            
+
             // New fields
             const linkedin = c['LinkedIn'] || '';
             const twitter = c['Twitter'] || '';
@@ -180,11 +183,11 @@ async function runMigration() {
                  linkedin, twitter, "skypeId", "secondaryEmail", "additionalInfo") 
                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30)
             `;
-            
+
             const params = [
-                firstName, lastName, email, mobile, phone, street, pinCode, city, state, country, 
+                firstName, lastName, email, mobile, phone, street, pinCode, city, state, country,
                 experience, jobTitle, employer, status, source, owner, createdBy, modifiedBy,
-                JSON.stringify(skills), JSON.stringify(education), 
+                JSON.stringify(skills), JSON.stringify(education),
                 JSON.stringify(experienceList), JSON.stringify(attachments), JSON.stringify(notes),
                 new Date(c['Created Time'] || Date.now()), new Date(c['Modified Time'] || Date.now()),
                 linkedin, twitter, skypeId, secondaryEmail, additionalInfo

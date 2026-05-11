@@ -22,7 +22,7 @@ const state = {
     candidates: [],
     allCandidates: [],
     currentView: "All Candidates",
-    candidateSortOrder: "asc",
+
     departments: [],
     assessments: [],
     pincodes: {
@@ -168,7 +168,7 @@ async function init() {
     setupEmailListeners();
     setupRelatedListNavigation();
 
-    navigate('home');
+    navigate('candidates');
 }
 
 function setupCommonViews() {
@@ -233,7 +233,8 @@ async function loadCandidates() {
                 education: typeof c.education === 'string' ? JSON.parse(c.education) : (c.education || []),
                 experienceList: typeof c.experienceList === 'string' ? JSON.parse(c.experienceList) : (c.experienceList || []),
                 attachments: typeof c.attachments === 'string' ? JSON.parse(c.attachments) : (c.attachments || []),
-                notes: typeof c.notes === 'string' ? JSON.parse(c.notes) : (c.notes || [])
+                notes: typeof c.notes === 'string' ? JSON.parse(c.notes) : (c.notes || []),
+                rawModifiedTime: new Date(c.modifiedTime || c.createdAt).getTime()
             }));
             state.allCandidates = [...state.candidates];
             applyFiltersToCandidates();
@@ -1082,13 +1083,9 @@ function applyFiltersToCandidates() {
         });
     });
 
-    // 3. Apply sorting
+    // 3. Apply sorting (Default: Recently modified first)
     filtered.sort((a, b) => {
-        const nameA = a.name ? a.name.toLowerCase() : '';
-        const nameB = b.name ? b.name.toLowerCase() : '';
-        if (nameA < nameB) return state.candidateSortOrder === 'asc' ? -1 : 1;
-        if (nameA > nameB) return state.candidateSortOrder === 'asc' ? 1 : -1;
-        return 0;
+        return (b.rawModifiedTime || 0) - (a.rawModifiedTime || 0);
     });
 
     state.candidates = filtered;
@@ -1438,17 +1435,7 @@ function setupEventListeners() {
         elements.btnNextCandidate.addEventListener('click', () => navigateCandidate(1));
     }
 
-    const sortBtn = document.getElementById('btn-sort-candidates');
-    if (sortBtn) {
-        sortBtn.addEventListener('click', () => {
-            state.candidateSortOrder = state.candidateSortOrder === 'asc' ? 'desc' : 'asc';
-            const icon = document.getElementById('sort-icon');
-            if (icon) {
-                icon.className = state.candidateSortOrder === 'asc' ? 'fas fa-sort-alpha-down' : 'fas fa-sort-alpha-up-alt';
-            }
-            applyFiltersToCandidates();
-        });
-    }
+
 
     const globalSearch = document.getElementById('global-search-input');
     if (globalSearch) {
