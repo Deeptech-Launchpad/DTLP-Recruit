@@ -469,6 +469,20 @@ app.put('/api/admin/:id/reset-password', authenticateToken, async (req, res) => 
 // BULK IMPORT ROUTE
 // ==========================================
 
+// DELETE a candidate
+app.delete('/api/candidates/:id', authenticateToken, async (req, res) => {
+    const { id } = req.params;
+    try {
+        const result = await pool.query('DELETE FROM candidates WHERE id = $1 RETURNING id', [id]);
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: "Candidate not found" });
+        }
+        res.json({ message: "success", data: { id: id } });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // POST /api/candidates/bulk-import  — accepts { candidates: [...] }
 app.post('/api/candidates/bulk-import', authenticateToken, async (req, res) => {
     const { candidates } = req.body;

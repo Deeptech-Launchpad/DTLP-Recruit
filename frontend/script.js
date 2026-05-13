@@ -137,6 +137,7 @@ const elements = {
     experienceBlocks: document.getElementById('experience-blocks'),
     candidateFormTitle: document.getElementById('candidate-form-title'),
     btnEditCandidateDetail: document.getElementById('btn-edit-candidate-detail'),
+    btnDeleteCandidateDetail: document.getElementById('btn-delete-candidate-detail'),
     btnPrevCandidate: document.getElementById('btn-prev-candidate'),
     btnNextCandidate: document.getElementById('btn-next-candidate'),
 };
@@ -1360,6 +1361,14 @@ function setupEventListeners() {
         elements.btnEditCandidateDetail.addEventListener('click', () => {
             if (state.currentCandidateId) {
                 showCandidateEdit(state.currentCandidateId);
+            }
+        });
+    }
+
+    if (elements.btnDeleteCandidateDetail) {
+        elements.btnDeleteCandidateDetail.addEventListener('click', () => {
+            if (state.currentCandidateId) {
+                deleteCandidate(state.currentCandidateId);
             }
         });
     }
@@ -2851,7 +2860,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     if (deleteBtn) {
-        deleteBtn.addEventListener('click', () => {
+        deleteBtn.addEventListener('click', async () => {
             const attsTbody = document.getElementById('detail-attachments-tbody');
             if (!attsTbody) return;
             const selectedCheckboxes = attsTbody.querySelectorAll('input[type="checkbox"]:checked');
@@ -2867,6 +2876,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     // Remove from state
                     candidate.attachments = candidate.attachments.filter(att => !filenamesToDelete.includes(att.filename));
+
+                    // Save to server
+                    await updateCandidateOnServer(candidate);
 
                     // Re-render the details view
                     showCandidateDetail(state.currentCandidateId);
@@ -3133,6 +3145,31 @@ async function updateCandidateOnServer(candidate) {
     const result = await response.json();
     if (result.message !== 'success') throw new Error(result.error);
     return result.data;
+}
+
+async function deleteCandidate(id) {
+    if (!confirm("Are you sure you want to completely delete this candidate? This action cannot be undone.")) return;
+
+    try {
+        const response = await fetch(`/api/candidates/${id}`, {
+            method: 'DELETE'
+        });
+        const result = await response.json();
+
+        if (result.message === 'success') {
+            // Remove from local state
+            state.allCandidates = state.allCandidates.filter(c => c.id !== id);
+            state.candidates = state.candidates.filter(c => c.id !== id);
+
+            if (typeof showToast === 'function') showToast('Candidate deleted successfully!');
+            showCandidatesList();
+        } else {
+            throw new Error(result.error);
+        }
+    } catch (err) {
+        console.error("Delete failed:", err);
+        alert("Failed to delete candidate: " + err.message);
+    }
 }
 
 window.deleteNote = async function (noteId) {

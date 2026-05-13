@@ -731,7 +731,11 @@
                         <button id="btn-edit-candidate-detail"
                             style="width:34px; height:34px; border-radius:50%; border:1px solid #d1d5db; background:transparent; color:#6b7280; display:flex; justify-content:center; align-items:center; cursor:pointer; font-size:0.9rem; transition: background 0.2s;"><i
                                 class="fas fa-edit"></i></button>
-                        
+
+                        <button id="btn-delete-candidate-detail"
+                            style="width:34px; height:34px; border-radius:50%; border:1px solid #fecaca; background:transparent; color:#ef4444; display:flex; justify-content:center; align-items:center; cursor:pointer; font-size:0.9rem; transition: background 0.2s;"
+                            title="Delete Candidate"><i class="fas fa-trash-alt"></i></button>
+
                         <div style="width:1px; height:20px; background:#e5e7eb; margin: 0 5px;"></div>
 
                         <button id="btn-prev-candidate"
@@ -1005,32 +1009,37 @@
                                         <div class="section-grid wrapper-relative">
                                             <div class="editable-row">
                                                 <div class="row-label">Street</div>
-                                                <div class="row-value text-muted-value" id="detail-street-2"><input type="text"
-                                                        class="inline-edit-input" placeholder="-" style="width: 250px;">
+                                                <div class="row-value text-muted-value" id="detail-street-2"><input
+                                                        type="text" class="inline-edit-input" placeholder="-"
+                                                        style="width: 250px;">
                                                 </div>
                                             </div>
                                             <div class="editable-row">
                                                 <div class="row-label">City</div>
-                                                <div class="row-value text-muted-value" id="detail-city-2"><input type="text"
-                                                        class="inline-edit-input" placeholder="-" style="width: 250px;">
+                                                <div class="row-value text-muted-value" id="detail-city-2"><input
+                                                        type="text" class="inline-edit-input" placeholder="-"
+                                                        style="width: 250px;">
                                                 </div>
                                             </div>
                                             <div class="editable-row">
                                                 <div class="row-label">Province</div>
-                                                <div class="row-value text-muted-value" id="detail-province-2"><input type="text"
-                                                        class="inline-edit-input" placeholder="-" style="width: 250px;">
+                                                <div class="row-value text-muted-value" id="detail-province-2"><input
+                                                        type="text" class="inline-edit-input" placeholder="-"
+                                                        style="width: 250px;">
                                                 </div>
                                             </div>
                                             <div class="editable-row">
                                                 <div class="row-label">Postal Code</div>
-                                                <div class="row-value text-muted-value" id="detail-pinCode-2"><input type="text"
-                                                        class="inline-edit-input" placeholder="-" style="width: 250px;">
+                                                <div class="row-value text-muted-value" id="detail-pinCode-2"><input
+                                                        type="text" class="inline-edit-input" placeholder="-"
+                                                        style="width: 250px;">
                                                 </div>
                                             </div>
                                             <div class="editable-row">
                                                 <div class="row-label">Country</div>
-                                                <div class="row-value text-muted-value" id="detail-country-2"><input type="text"
-                                                        class="inline-edit-input" placeholder="-" style="width: 250px;">
+                                                <div class="row-value text-muted-value" id="detail-country-2"><input
+                                                        type="text" class="inline-edit-input" placeholder="-"
+                                                        style="width: 250px;">
                                                 </div>
                                             </div>
                                         </div>
@@ -1138,8 +1147,9 @@
                                         <div class="section-grid">
                                             <div class="editable-row">
                                                 <div class="row-label">LinkedIn</div>
-                                                <div class="row-value text-muted-value" id="detail-linkedin-2"><input type="text"
-                                                        class="inline-edit-input" placeholder="-" style="width: 250px;">
+                                                <div class="row-value text-muted-value" id="detail-linkedin-2"><input
+                                                        type="text" class="inline-edit-input" placeholder="-"
+                                                        style="width: 250px;">
                                                 </div>
                                             </div>
                                         </div>
@@ -1212,7 +1222,8 @@
                                             <div class="editable-row">
                                                 <div class="row-label">Candidate Owner</div>
                                                 <div class="row-value" style="width: 250px;">
-                                                    <span id="detail-owner-val" style="font-weight: 600; color: #111827;">-</span>
+                                                    <span id="detail-owner-val"
+                                                        style="font-weight: 600; color: #111827;">-</span>
                                                 </div>
                                             </div>
                                             <div class="editable-row">
@@ -2822,26 +2833,36 @@
             <!-- Reset Password Modal -->
             <div id="reset-password-modal" class="hidden"
                 style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 10001;">
-                <div style="background: #fff; padding: 24px; border-radius: 8px; width: 400px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                    <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 1.1rem;">Reset Password for <span id="reset-username-display" style="color: #0ea5e9;"></span></h3>
+                <div
+                    style="background: #fff; padding: 24px; border-radius: 8px; width: 400px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 1.1rem;">Reset Password for <span
+                            id="reset-username-display" style="color: #0ea5e9;"></span></h3>
                     <form id="reset-password-form">
                         <input type="hidden" id="reset-admin-id">
                         <div style="margin-bottom: 16px;">
-                            <label style="display: block; margin-bottom: 6px; font-weight: 500; font-size: 0.9rem; color: #334155;">New Password</label>
+                            <label
+                                style="display: block; margin-bottom: 6px; font-weight: 500; font-size: 0.9rem; color: #334155;">New
+                                Password</label>
                             <input type="password" id="reset-new-password" required placeholder="Enter new password"
                                 style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; box-sizing: border-box; font-size: 1rem;">
                         </div>
                         <div style="margin-bottom: 16px;">
-                            <label style="display: block; margin-bottom: 6px; font-weight: 500; font-size: 0.9rem; color: #334155;">Confirm Password</label>
-                            <input type="password" id="reset-confirm-password" required placeholder="Confirm new password"
+                            <label
+                                style="display: block; margin-bottom: 6px; font-weight: 500; font-size: 0.9rem; color: #334155;">Confirm
+                                Password</label>
+                            <input type="password" id="reset-confirm-password" required
+                                placeholder="Confirm new password"
                                 style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; box-sizing: border-box; font-size: 1rem;">
                         </div>
-                        <div id="reset-password-error" style="color: #ef4444; font-size: 0.85rem; margin-bottom: 10px; min-height: 20px;"></div>
+                        <div id="reset-password-error"
+                            style="color: #ef4444; font-size: 0.85rem; margin-bottom: 10px; min-height: 20px;"></div>
                         <div style="display: flex; justify-content: flex-end; gap: 12px;">
-                            <button type="button" onclick="document.getElementById('reset-password-modal').classList.add('hidden')"
+                            <button type="button"
+                                onclick="document.getElementById('reset-password-modal').classList.add('hidden')"
                                 style="background-color: #f1f5f9; color: #475569; padding: 10px 16px; border-radius: 6px; font-weight: 500; cursor: pointer; border: none; font-size: 0.95rem;">Cancel</button>
                             <button type="submit"
-                                style="background-color: #0ea5e9; color: #fff; padding: 10px 16px; border-radius: 6px; font-weight: 500; cursor: pointer; border: none; font-size: 0.95rem;">Reset Password</button>
+                                style="background-color: #0ea5e9; color: #fff; padding: 10px 16px; border-radius: 6px; font-weight: 500; cursor: pointer; border: none; font-size: 0.95rem;">Reset
+                                Password</button>
                         </div>
                     </form>
                 </div>
